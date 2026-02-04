@@ -1,0 +1,130 @@
+Contexte du projet
+
+L’application SmartLogi Delivery Management System (SDMS) dispose désormais d’un backend robuste, sécurisé et industrialisé, comprenant :
+
+    API REST Spring Boot
+    Sécurité stateless JWT
+    Authentification OAuth2 (Social Login)
+    Déploiement Docker
+    Pipeline CI/CD avec Jenkins
+
+Cependant, l’application ne dispose pas encore d’une interface utilisateur moderne permettant aux différents acteurs métiers d’interagir efficacement avec le système.
+
+SmartLogi souhaite donc développer une application frontend web afin de :
+
+    offrir une interface claire et intuitive aux utilisateurs,
+    consommer les APIs sécurisées existantes,
+    respecter les rôles et permissions définis côté backend,
+    préparer l’intégration future avec des clients web et mobiles.
+
+L’application frontend sera développée avec Angular, en suivant les bonnes pratiques de structuration, de sécurité et de maintenabilité.
+Objectifs métier
+
+L’interface Angular devra permettre :
+
+    Une authentification sécurisée des utilisateurs via JWT et OAuth2.
+    Une gestion complète des colis, adaptée au rôle de l’utilisateur.
+    Une navigation fluide et sécurisée entre les différentes fonctionnalités.
+    Une consultation claire et synthétique des informations logistiques.
+    Une réduction des erreurs humaines grâce à des formulaires validés.
+    Une meilleure visibilité opérationnelle pour les gestionnaires.
+
+Profils utilisateurs & besoins fonctionnels
+Gestionnaire logistique
+
+    Accéder à un dashboard global
+    Consulter et filtrer tous les colis
+    Gérer les clients, livreurs et zones
+    Visualiser les statuts, priorités et retards
+    Accéder uniquement aux écrans autorisés à son rôle
+
+Livreur
+
+    Se connecter à l’application
+    Consulter uniquement ses colis assignés
+    Mettre à jour le statut des colis
+    Visualiser sa tournée par zone / priorité
+
+Client expéditeur
+
+    Se connecter / s’inscrire
+    Créer une demande de livraison
+    Suivre l’état de ses colis
+    Consulter l’historique de livraison
+
+Destinataire
+
+    Consulter le statut des colis destinés afin de connaître la date de réception
+
+Périmètre fonctionnel Frontend
+
+L’application Angular devra inclure :
+
+    Page de login
+    Gestion du JWT côté frontend
+    Pages protégées par rôle
+    Liste paginée et filtrée des colis
+    Formulaires de création / modification
+    Navigation dynamique par routing
+    Gestion des erreurs et messages utilisateurs
+    Consommation sécurisée de l’API REST
+
+Architecture Frontend attendue
+
+L’application Angular devra être organisée selon une architecture claire et maintenable, basée sur :
+
+    Modules fonctionnels
+    Composants réutilisables
+    Services pour la logique métier
+    Séparation claire UI / logique / données
+
+Objectifs techniques
+Angular – Fondamentaux
+
+    Comprendre et utiliser : Components, Templates, Modules, Data Binding (One-way, Two-way)
+    Utilisation correcte de TypeScript
+
+Services & HTTP
+
+    Consommer les APIs REST avec HttpClient
+    Centraliser les appels API dans des services
+    Gestion des réponses JSON
+    Gestion des erreurs HTTP
+
+Routing avancé
+
+    Mise en place du routing Angular
+    Guards : AuthGuard (authentification), RoleGuard (autorisation)
+    Interceptors : Injection automatique du JWT, Gestion globale des erreurs
+    Resolvers : Pré-chargement des données avant navigation
+
+Sécurité & intégration backend
+
+    Gestion du token JWT (localStorage ou memory)
+    Protection des routes selon les rôles
+    Gestion du CORS côté frontend
+    Synchronisation avec Spring Security
+
+Forms & validation
+
+    Reactive Forms
+    Validation côté frontend
+    Messages d’erreur clairs
+    Gestion des formulaires complexes (colis, clients)
+
+Programmation réactive
+
+    Observables
+    Souscriptions et bonnes pratiques
+    Gestion des flux asynchrones
+
+Exigences techniques
+
+    Angular (version récente)
+    TypeScript
+    Angular Router
+    HttpClient
+    Respect des bonnes pratiques Angular
+    Code structuré et lisible
+    Séparation claire des responsabilités
+    Respect des rôles backend
