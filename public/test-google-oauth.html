@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google OAuth Popup - Test Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #1a202c;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box h3 {
+            color: #2d3748;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .info-box p {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .log {
+            background: #1a202c;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .log.active {
+            display: block;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .success {
+            color: #68d391;
+        }
+
+        .error {
+            color: #fc8181;
+        }
+
+        .info {
+            color: #63b3ed;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status.success {
+            background: #c6f6d5;
+            color: #22543d;
+            display: block;
+        }
+
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Google OAuth Test</h1>
+        <p class="subtitle">Test the popup-based Google OAuth implementation</p>
+
+        <div class="info-box">
+            <h3>ℹ️ How it works</h3>
+            <p>
+                1. Click the button below to open Google OAuth in a popup<br>
+                2. Login with your Google account<br>
+                3. Backend returns JSON response<br>
+                4. Popup captures response and closes<br>
+                5. You'll be logged in!
+            </p>
+        </div>
+
+        <button id="googleBtn" class="button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            <span id="btnText">Sign in with Google</span>
+        </button>
+
+        <div id="status" class="status"></div>
+
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('googleBtn');
+        const btnText = document.getElementById('btnText');
+        const statusEl = document.getElementById('status');
+        const logEl = document.getElementById('log');
+
+        function addLog(message, type = 'info') {
+            logEl.classList.add('active');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function showStatus(message, type) {
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+
+        btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            btnText.innerHTML = '<div class="spinner"></div> Opening popup...';
+            statusEl.className = 'status';
+            logEl.innerHTML = '';
+
+            addLog('Starting Google OAuth flow...', 'info');
+
+            try {
+                // Create popup
+                const width = 500;
+                const height = 600;
+                const left = window.screenX + (window.outerWidth - width) / 2;
+                const top = window.screenY + (window.outerHeight - height) / 2;
+
+                addLog('Opening popup window...', 'info');
+
+                const popup = window.open(
+                    'http://localhost:8080/api/auth/login/google',
+                    'Google Sign In',
+                    `width=${width},height=${height},left=${left},top=${top}`
+                );
+
+                if (!popup) {
+                    throw new Error('Popup blocked! Please allow popups for this site.');
+                }
+
+                addLog('Popup opened successfully', 'success');
+                btnText.textContent = 'Waiting for authentication...';
+
+                // Monitor popup
+                const checkPopup = setInterval(() => {
+                    if (popup.closed) {
+                        clearInterval(checkPopup);
+                        addLog('Popup was closed', 'info');
+                        btn.disabled = false;
+                        btnText.textContent = 'Sign in with Google';
+                    }
+                }, 500);
+
+                // Listen for response
+                const storageListener = (e) => {
+                    if (e.key === 'googleAuthResponse' && e.newValue) {
+                        clearInterval(checkPopup);
+                        window.removeEventListener('storage', storageListener);
+
+                        addLog('Received authentication response!', 'success');
+
+                        try {
+                            const response = JSON.parse(e.newValue);
+                            localStorage.removeItem('googleAuthResponse');
+
+                            if (popup && !popup.closed) {
+                                popup.close();
+                            }
+
+                            addLog('Response parsed successfully', 'success');
+                            addLog(`Token: ${response.token.substring(0, 20)}...`, 'info');
+                            addLog(`User: ${response.user.email}`, 'info');
+                            addLog(`User ID: ${response.user.id}`, 'info');
+
+                            // Store data
+                            localStorage.setItem('token', response.token);
+                            localStorage.setItem('user', JSON.stringify(response.user));
+
+                            showStatus('✅ Authentication successful!', 'success');
+                            btn.disabled = false;
+                            btnText.textContent = 'Authenticated ✓';
+
+                            addLog('Authentication complete!', 'success');
+
+                        } catch (error) {
+                            addLog(`Error: ${error.message}`, 'error');
+                            showStatus('❌ Failed to parse response', 'error');
+                            btn.disabled = false;
+                            btnText.textContent = 'Sign in with Google';
+                        }
+                    }
+                };
+
+                window.addEventListener('storage', storageListener);
+
+                // Timeout
+                setTimeout(() => {
+                    clearInterval(checkPopup);
+                    window.removeEventListener('storage', storageListener);
+                    if (popup && !popup.closed) {
+                        popup.close();
+                        addLog('Authentication timeout (5 minutes)', 'error');
+                        showStatus('❌ Authentication timeout', 'error');
+                    }
+                    btn.disabled = false;
+                    btnText.textContent = 'Sign in with Google';
+                }, 5 * 60 * 1000);
+
+            } catch (error) {
+                addLog(`Error: ${error.message}`, 'error');
+                showStatus(`❌ ${error.message}`, 'error');
+                btn.disabled = false;
+                btnText.textContent = 'Sign in with Google';
+            }
+        });
+
+        // Check if already authenticated
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+
+            if (token && user) {
+                addLog('Already authenticated!', 'success');
+                addLog(`Token found: ${token.substring(0, 20)}...`, 'info');
+                addLog(`User: ${JSON.parse(user).email}`, 'info');
+                showStatus('✅ Already authenticated', 'success');
+                btnText.textContent = 'Authenticated ✓';
+            }
+        });
+    </script>
+</body>
+</html>

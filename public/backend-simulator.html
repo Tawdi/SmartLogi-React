@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Response Simulator - Google OAuth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin: 1rem 0;
+        }
+
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .btn-wrong {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-wrong:hover {
+            background: #dc2626;
+        }
+
+        .btn-correct {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-correct:hover {
+            background: #059669;
+        }
+
+        .label {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .label-wrong {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .label-correct {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result.error {
+            background: #fee2e2;
+            border: 2px solid #dc2626;
+            color: #991b1b;
+        }
+
+        .result.success {
+            background: #d1fae5;
+            border: 2px solid #059669;
+            color: #065f46;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Backend OAuth Response Simulator</h1>
+        <p class="subtitle">This page demonstrates what the backend SHOULD do after Google OAuth callback</p>
+
+        <!-- Current Wrong Approach -->
+        <div class="section">
+            <span class="label label-wrong">❌ CURRENT (NOT WORKING)</span>
+            <h2>Returning JSON Directly</h2>
+            <p>This is what the backend currently does. It doesn't work because of CORS.</p>
+
+            <div class="code-block">
+<span class="comment">// Spring Boot Controller (WRONG)</span>
+<span class="keyword">@GetMapping</span>(<span class="string">"/api/auth/login/google/callback"</span>)
+<span class="keyword">public</span> ResponseEntity&lt;?&gt; <span class="function">callback</span>(<span class="keyword">@RequestParam</span> String code) {
+    <span class="comment">// ... OAuth processing ...</span>
+
+    <span class="comment">// ❌ Returns JSON - popup shows JSON but frontend can't read it</span>
+    <span class="keyword">return</span> ResponseEntity.ok(<span class="keyword">new</span> <span class="function">AuthResponse</span>(token, user));
+}
+            </div>
+
+            <button class="btn-wrong" onclick="simulateWrongApproach()">
+                Simulate Wrong Approach (Returns JSON)
+            </button>
+
+            <div id="wrong-result" class="result error">
+                <strong>❌ Result:</strong> Popup opened with JSON response at <span class="highlight">localhost:8080</span>
+                <br><br>
+                The parent window at <span class="highlight">localhost:5173</span> cannot read this due to CORS!
+                <br><br>
+                <strong>User experience:</strong> Popup stuck showing JSON, has to close manually.
+            </div>
+        </div>
+
+        <!-- Correct Approach -->
+        <div class="section">
+            <span class="label label-correct">✅ CORRECT (WORKING)</span>
+            <h2>Redirecting to Frontend</h2>
+            <p>This is what the backend SHOULD do. Frontend can read URL parameters.</p>
+
+            <div class="code-block">
+<span class="comment">// Spring Boot Controller (CORRECT)</span>
+<span class="keyword">@GetMapping</span>(<span class="string">"/api/auth/login/google/callback"</span>)
+<span class="keyword">public void</span> <span class="function">callback</span>(
+    <span class="keyword">@RequestParam</span> String code,
+    HttpServletResponse response,
+    HttpSession session
+) <span class="keyword">throws</span> IOException {
+    <span class="comment">// ... OAuth processing ...</span>
+
+    String redirectUri = session.getAttribute(<span class="string">"oauth_redirect_uri"</span>);
+    String redirectUrl = String.format(
+        <span class="string">"%s?token=%s&user=%s&expiresIn=%d"</span>,
+        redirectUri,  <span class="comment">// http://localhost:5173/google-callback.html</span>
+        URLEncoder.encode(token, <span class="string">"UTF-8"</span>),
+        URLEncoder.encode(userJson, <span class="string">"UTF-8"</span>),
+        3600
+    );
+
+    <span class="comment">// ✅ Redirects to frontend - popup can be read by parent window</span>
+    response.<span class="function">sendRedirect</span>(redirectUrl);
+}
+            </div>
+
+            <button class="btn-correct" onclick="simulateCorrectApproach()">
+                Simulate Correct Approach (Redirects to Frontend)
+            </button>
+
+            <div id="correct-result" class="result success">
+                <strong>✅ Result:</strong> Popup redirected to <span class="highlight">localhost:5173/google-callback.html</span>
+                <br><br>
+                Parent window at <span class="highlight">localhost:5173</span> can read URL parameters (same origin)!
+                <br><br>
+                <strong>User experience:</strong> Spinner briefly shown, popup auto-closes, user logged in! 🎉
+            </div>
+        </div>
+
+        <!-- What Gets Sent -->
+        <div class="section">
+            <h2>📦 What Backend Should Send</h2>
+            <p>The redirect URL should contain these parameters:</p>
+
+            <div class="code-block">
+http://localhost:5173/google-callback.html?
+  token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+  &user=%7B%22id%22%3A1%2C%22email%22%3A%22user%40example.com%22%2C%22username%22%3A%22johndoe%22%7D
+  &expiresIn=3600
+            </div>
+
+            <p style="margin-top: 1rem;">When URL-decoded, the user parameter becomes:</p>
+
+            <div class="code-block">
+{
+  <span class="string">"id"</span>: 1,
+  <span class="string">"email"</span>: <span class="string">"user@example.com"</span>,
+  <span class="string">"username"</span>: <span class="string">"johndoe"</span>
+}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function simulateWrongApproach() {
+            // Show what happens with wrong approach
+            const result = document.getElementById('wrong-result');
+            result.classList.add('show');
+
+            // Open popup that shows JSON (simulates backend returning JSON)
+            const width = 500;
+            const height = 400;
+            const left = window.screenX + (window.outerWidth - width) / 2;
+            const top = window.screenY + (window.outerHeight - height) / 2;
+
+            const popup = window.open(
+                '',
+                'Wrong Approach Demo',
+                `width=${width},height=${height},left=${left},top=${top}`
+            );
+
+            if (popup) {
+                popup.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Backend Response (localhost:8080)</title>
+                        <style>
+                            body {
+                                font-family: monospace;
+                                padding: 2rem;
+                                background: #282c34;
+                                color: #abb2bf;
+                            }
+                            h1 {
+                                color: #ef4444;
+                                font-size: 1.2rem;
+                            }
+                            pre {
+                                background: #1e2127;
+                                padding: 1rem;
+                                border-radius: 6px;
+                                overflow-x: auto;
+                            }
+                            .note {
+                                background: #fef3c7;
+                                color: #92400e;
+                                padding: 1rem;
+                                border-radius: 6px;
+                                margin-top: 1rem;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>❌ Backend JSON Response (localhost:8080)</h1>
+                        <pre>{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 3600,
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "username": "johndoe"
+  }
+}</pre>
+                        <div class="note">
+                            <strong>⚠️ PROBLEM:</strong><br>
+                            This window is on <strong>localhost:8080</strong><br>
+                            Parent window is on <strong>localhost:5173</strong><br>
+                            CORS blocks access - frontend cannot read this!<br><br>
+                            <strong>User must close this popup manually.</strong>
+                        </div>
+                    </body>
+                    </html>
+                `);
+            }
+        }
+
+        function simulateCorrectApproach() {
+            // Show what happens with correct approach
+            const result = document.getElementById('correct-result');
+            result.classList.add('show');
+
+            // Create mock auth data
+            const mockAuthData = {
+                success: true,
+                token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+                expiresIn: 3600,
+                user: {
+                    id: 1,
+                    email: 'user@example.com',
+                    username: 'johndoe'
+                }
+            };
+
+            // Store in localStorage (simulates callback page storing data)
+            localStorage.setItem('googleAuthResponse', JSON.stringify(mockAuthData));
+
+            // Open the actual callback page
+            const width = 500;
+            const height = 400;
+            const left = window.screenX + (window.outerWidth - width) / 2;
+            const top = window.screenY + (window.outerHeight - height) / 2;
+
+            const userJson = encodeURIComponent(JSON.stringify(mockAuthData.user));
+            const callbackUrl = `google-callback.html?token=${mockAuthData.token}&user=${userJson}&expiresIn=${mockAuthData.expiresIn}`;
+
+            const popup = window.open(
+                callbackUrl,
+                'Correct Approach Demo',
+                `width=${width},height=${height},left=${left},top=${top}`
+            );
+
+            // Simulate reading the response
+            setTimeout(() => {
+                const stored = localStorage.getItem('googleAuthResponse');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    console.log('✅ Successfully read auth data:', data);
+                    alert(`✅ Success! Received auth data:\n\nToken: ${data.token.substring(0, 20)}...\nUser: ${data.user.username}\nEmail: ${data.user.email}`);
+                    localStorage.removeItem('googleAuthResponse');
+                }
+            }, 2000);
+        }
+
+        // Clean up localStorage on page load
+        window.addEventListener('load', () => {
+            localStorage.removeItem('googleAuthResponse');
+        });
+    </script>
+</body>
+</html>

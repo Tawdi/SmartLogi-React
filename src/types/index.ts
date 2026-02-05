@@ -19,6 +19,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  role?: string;
 }
 
 export interface AuthContextType {
@@ -27,4 +28,5 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
+  setUser: (user: User | null) => void;
 }

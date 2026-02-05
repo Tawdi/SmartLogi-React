@@ -11,6 +11,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Expose setUser for Google OAuth callback
+  const updateUser = (newUser: User | null) => {
+    setUser(newUser);
+  };
+
   // Check for existing session on mount
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -23,30 +28,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Import auth service dynamically to avoid circular dependency
+      const { authService } = await import('../services/auth.service');
 
-      // Mock authentication - In real app, validate with backend
-      const mockUser: User = {
-        id: '1',
-        email,
+      // Call the actual API
+      const response = await authService.login({
+        username: email,
+        password: password,
+      });
+
+      // Store token
+      localStorage.setItem('token', response.token);
+
+      // Create user object from available data
+      // Note: Backend login doesn't return user ID/email, only token and role
+      const user: User = {
+        id: '1', // Placeholder - backend doesn't return user ID
+        email: email,
         name: email.split('@')[0],
+        role: response.role || 'user',
       };
 
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-    } catch (error) {
+      setUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch (error: any) {
       console.error('Login failed:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, _password: string, name: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
+      // TODO: Implement actual registration API call
+      // Simulate API call for now
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const newUser: User = {
@@ -68,10 +85,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, setUser: updateUser }}>
       {children}
     </AuthContext.Provider>
   );
