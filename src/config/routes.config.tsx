@@ -6,6 +6,15 @@ import Register from '../pages/Register/Register';
 import Dashboard from '../pages/Dashboard/Dashboard';
 import Tracking from '../pages/Tracking/Tracking';
 import About from '../pages/About/About';
+import GoogleCallback from '../pages/GoogleCallback/GoogleCallback';
+import ParcelsList from '../pages/Parcels/ParcelsList';
+import ParcelDetail from '../pages/Parcels/ParcelDetail';
+import DriversList from '../pages/Drivers/DriversList';
+import ProductsList from '../pages/Products/ProductsList';
+import RecipientsList from '../pages/Recipients/RecipientsList';
+import ClientsList from '../pages/Clients/ClientsList';
+import ZonesList from '../pages/Zones/ZonesList';
+import DeliveriesList from '../pages/Deliveries/DeliveriesList';
 import AuthLayout from '../components/layout/AuthLayout/AuthLayout';
 import MainLayout from '../components/layout/MainLayout/MainLayout';
 import DashboardLayout from '../components/layout/DashboardLayout/DashboardLayout';
@@ -58,6 +67,11 @@ export const appRoutes: AppRoute[] = [
     )
   },
   {
+    path: '/auth/google/callback',
+    name: 'GoogleCallback',
+    element: <GoogleCallback />
+  },
+  {
     path: '/dashboard',
     name: 'Dashboard',
     element: (
@@ -72,10 +86,47 @@ export const appRoutes: AppRoute[] = [
     name: 'Parcels',
     element: (
       <DashboardLayout>
-        <div className="space-y-6">
-          <h1 className="text-3xl font-bold">Gestion des Colis</h1>
-          <p className="text-foreground/60">Liste de tous les colis</p>
-        </div>
+        <ParcelsList />
+      </DashboardLayout>
+    ),
+    isProtected: true,
+  },
+  {
+    path: '/dashboard/parcels/:id',
+    name: 'ParcelDetail',
+    element: (
+      <DashboardLayout>
+        <ParcelDetail />
+      </DashboardLayout>
+    ),
+    isProtected: true,
+  },
+  {
+    path: '/dashboard/drivers',
+    name: 'Drivers',
+    element: (
+      <DashboardLayout>
+        <DriversList />
+      </DashboardLayout>
+    ),
+    isProtected: true,
+  },
+  {
+    path: '/dashboard/products',
+    name: 'Products',
+    element: (
+      <DashboardLayout>
+        <ProductsList />
+      </DashboardLayout>
+    ),
+    isProtected: true,
+  },
+  {
+    path: '/dashboard/recipients',
+    name: 'Recipients',
+    element: (
+      <DashboardLayout>
+        <RecipientsList />
       </DashboardLayout>
     ),
     isProtected: true,
@@ -85,10 +136,7 @@ export const appRoutes: AppRoute[] = [
     name: 'Clients',
     element: (
       <DashboardLayout>
-        <div className="space-y-6">
-          <h1 className="text-3xl font-bold">Gestion des Clients</h1>
-          <p className="text-foreground/60">Liste de tous les clients</p>
-        </div>
+        <ClientsList />
       </DashboardLayout>
     ),
     isProtected: true,
@@ -98,10 +146,7 @@ export const appRoutes: AppRoute[] = [
     name: 'Deliveries',
     element: (
       <DashboardLayout>
-        <div className="space-y-6">
-          <h1 className="text-3xl font-bold">Livraisons</h1>
-          <p className="text-foreground/60">Gestion des livraisons</p>
-        </div>
+        <DeliveriesList />
       </DashboardLayout>
     ),
     isProtected: true,
@@ -111,10 +156,7 @@ export const appRoutes: AppRoute[] = [
     name: 'Zones',
     element: (
       <DashboardLayout>
-        <div className="space-y-6">
-          <h1 className="text-3xl font-bold">Zones de Livraison</h1>
-          <p className="text-foreground/60">Gestion des zones</p>
-        </div>
+        <ZonesList />
       </DashboardLayout>
     ),
     isProtected: true,
