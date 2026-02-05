@@ -8,6 +8,7 @@ import Button from '../../components/ui/Button/Button';
 import { useClients } from '../../hooks/useClients';
 import { useZones } from '../../hooks/useZones';
 import type { ColisRequest, ColisResponse, Priorite } from '../../types/api.types';
+import { useRecipients } from '../../hooks/useRecipients';
 
 interface ParcelFormModalProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export default function ParcelFormModal({
   isLoading = false,
 }: ParcelFormModalProps) {
   const { clients } = useClients({ page: 0, size: 100 });
+  const { recipients } = useRecipients({ page: 0, size: 100 });
   const { zones } = useZones({ page: 0, size: 100 });
 
   const [formData, setFormData] = useState<ColisRequest>({
@@ -231,9 +233,9 @@ export default function ParcelFormModal({
               name="destinataireId"
               value={formData.destinataireId}
               onChange={handleChange}
-              options={clients.map((client) => ({
-                value: client.id,
-                label: `${client.firstName} ${client.lastName}`,
+              options={recipients.map((recipient) => ({
+                value: recipient.id,
+                label: `${recipient.firstName} ${recipient.lastName}`,
               }))}
               placeholder="Sélectionner un destinataire"
               disabled={isLoading}
