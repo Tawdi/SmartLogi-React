@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
     container_name: smartlogi-frontend
     ports:
-      - "80:80"
+      - "4200:80"
     environment:
       - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080}
     networks:

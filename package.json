@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "docker:build": "docker build -t smartlogi-frontend:latest .",
-    "docker:run": "docker run -p 80:80 smartlogi-frontend:latest",
+    "docker:run": "docker run -d -p 4200:80 -e VITE_API_BASE_URL=https://api.production.smartlogi.com --name smartlogi-react smartlogi-frontend:latest",
     "docker:compose": "docker-compose up -d",
     "docker:compose:build": "docker-compose up -d --build",
     "docker:stop": "docker-compose down"
