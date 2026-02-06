@@ -13,7 +13,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
   size = 'md',
   ...props
 }) => {
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
 
   const sizes = {
     sm: 'p-1.5 text-sm',

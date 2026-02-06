@@ -6,8 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:prod": "tsc -b && vite build --mode production",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docker:build": "docker build -t smartlogi-frontend:latest .",
+    "docker:run": "docker run -p 80:80 smartlogi-frontend:latest",
+    "docker:compose": "docker-compose up -d",
+    "docker:compose:build": "docker-compose up -d --build",
+    "docker:stop": "docker-compose down"
   },
   "dependencies": {
     "axios": "^1.13.4",

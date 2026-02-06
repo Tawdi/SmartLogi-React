@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Frontend - React App
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartlogi-frontend
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8080}
+    networks:
+      - smartlogi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # Backend - Spring Boot (Optional - uncomment if deploying full stack)
+  # backend:
+  #   build:
+  #     context: ../smartlogidms
+  #     dockerfile: Dockerfile
+  #   container_name: smartlogi-backend
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=prod
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/smartlogi
+  #     - SPRING_DATASOURCE_USERNAME=smartlogi
+  #     - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - smartlogi-network
+  #   restart: unless-stopped
+
+  # Database - PostgreSQL (Optional)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: smartlogi-postgres
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRES_DB=smartlogi
+  #     - POSTGRES_USER=smartlogi
+  #     - POSTGRES_PASSWORD=${DB_PASSWORD}
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   networks:
+  #     - smartlogi-network
+  #   restart: unless-stopped
+
+networks:
+  smartlogi-network:
+    driver: bridge
+
+# volumes:
+#   postgres-data:

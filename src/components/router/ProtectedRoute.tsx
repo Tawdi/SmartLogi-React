@@ -14,7 +14,7 @@ interface ProtectedRouteProps {
  */
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  requiredRoles = []
+  // requiredRoles can be used for role-based access control in the future
 }) => {
   const { user, isLoading } = useAuth();
 
